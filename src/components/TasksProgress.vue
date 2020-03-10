@@ -30,8 +30,8 @@
       position: absolute;
       border-radius: 12px;
       height: 100%;
-      background: rgb(3,55,96);
-      background: linear-gradient(90deg, rgba(3,55,96,1) 0%, rgba(33,150,243,1) 100%);
+      background: $progress-blue-dark;
+      background: linear-gradient(90deg, $progress-blue-dark 0%, $progress-blue 100%);
       align-self: flex-start;
     }
     .progress-value {
