@@ -1,28 +1,89 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1><b-icon-document-text></b-icon-document-text>Simple task list</h1>
+    <NewTask @taskAdded="addTask" />
+    <TaskGrid :tasks="tasks"
+      @taskDeleted="deleteTask"
+      @taskStateChanged="toggleTaskState" />
+    <hr>
+    <TasksProgress :progress="progress" />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
+  import TaskGrid from "./components/TaskGrid"
+  import NewTask from "./components/NewTask"
+  import TasksProgress from "./components/TasksProgress"
+  export default {
+    name: "App",
+    components: { TaskGrid, NewTask, TasksProgress },
+    data() {
+      return {
+        tasks: []
+      }
+    },
+    computed: {
+      progress() {
+        const total = this.tasks.length
+        const done = this.tasks.filter(t => !t.pending).length
+        return Math.round(done / total * 100) || 0
+      }
+    },
+    watch: {
+      tasks: {
+        deep: true,
+        handler() {
+          localStorage.setItem('tasks', JSON.stringify(this.tasks))
+        }
+      }
+    },
+    methods: {
+      addTask(task) {
+        const sameName = t => t.name === task.name
+        const reallyNew = this.tasks.filter(sameName).length == 0
+        if(reallyNew) {
+          this.tasks.push({
+            name: task.name,
+            pending: task.pending || true
+          })
+        }
+      },
+      deleteTask(i) {
+        this.tasks.splice(i, 1)
+      },
+      toggleTaskState(i) {
+        this.tasks[i].pending = !this.tasks[i].pending
+      }
+    },
+    created() {
+      const json = localStorage.getItem('tasks')
+      const array = JSON.parse(json) || []
+      this.tasks = Array.isArray(array) ? array : []
+    }
   }
-}
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style lang="scss">
+  @font-face {
+    font-family: "RobotoMono";
+    src: url("./assets/fonts/RobotoMono-Thin.ttf");
+  }
+  * {
+    font-family: "RobotoMono", monospace;
+  }
+  body {
+    margin: 0;
+    h1 {
+      font-weight: bold;
+    }
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      align-items: center;
+      color: white;
+      background: #012933;
+      padding-top: 60px;
+    }
+  }
 </style>
